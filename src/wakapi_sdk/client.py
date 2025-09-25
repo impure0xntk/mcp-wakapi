@@ -5,7 +5,7 @@ import base64
 from pydantic import BaseModel
 import httpx
 import logging
-from mcp_wakapi.core.exceptions import ApiError
+from .core.exceptions import ApiError
 
 
 class TimeRange(Enum):

@@ -8,11 +8,17 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        python-with-packages = pkgs.python3.withPackages (ps: with ps; [
+        python312Packages = pkgs.python312Packages;
+        python-with-packages = pkgs.python312.withPackages (ps: with ps; [
           httpx
           fastmcp
           pydantic
           python-dotenv
+          toml
+          structlog
+          pip
+          pytest
+          python312Packages.pytest-asyncio
         ]);
       in {
         devShells.default = pkgs.mkShell {
@@ -20,22 +26,21 @@
             pkgs.uv
             python-with-packages
           ];
-          
+
           shellHook = ''
-            # Python環境の設定
-            export PYTHONPATH="$PWD/src:$PYTHONPATH"
-            
-            # uvで依存関係を管理
-            if [ ! -d .venv ]; then
-              uv venv
-            fi
-            
-            # 仮想環境をアクティベート
+            # Python environment setup
+            export PYTHONPATH="${pkgs.python312}/lib/python3.12/site-packages:$PWD/src:$PYTHONPATH"
+
+            # Manage dependencies with uv
+            uv venv --python ${pkgs.python312}/bin/python
+            uv sync --dev
+
+            # Activate virtual environment
             source .venv/bin/activate
-            
-            echo "開発環境が起動しました"
-            echo "Pythonバージョン: $(python --version)"
-            echo "uvバージョン: $(uv --version)"
+
+            echo "Development environment started"
+            echo "Python version: $(python --version)"
+            echo "uv version: $(uv --version)"
           '';
         };
       });

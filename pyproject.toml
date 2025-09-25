@@ -10,6 +10,8 @@ dependencies = [
     "httpx>=0.25.0",
     "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
+    "toml>=0.10.0",
+    "structlog",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -30,9 +32,10 @@ build-backend = "hatchling.build"
 [tool.uv]
 dev-dependencies = [
     "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
+    "pytest-asyncio>=0.23.0",
     "black>=23.0.0",
     "ruff>=0.1.0",
+    "pytest-mock>=3.15.1",
 ]
 
 [tool.black]
@@ -42,3 +45,9 @@ target-version = ['py311']
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_tools", "src/wakapi_sdk"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
