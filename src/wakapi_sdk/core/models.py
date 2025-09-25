@@ -73,14 +73,6 @@ class WakapiProject:
 
 
 @dataclass
-class WakapiUserAgent:
-    """Wakapi user agent data model."""
-
-    name: str
-    total_seconds: int
-
-
-@dataclass
 class WakapiAllTime:
     """Wakapi all-time statistics data model."""
 

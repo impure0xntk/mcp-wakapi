@@ -229,27 +229,6 @@ class ProjectViewModel(BaseModel):
     data: Project
 
 
-class UserAgentEntry(BaseModel):
-    """Model for user agent entry."""
-
-    editor: str
-    first_seen: str
-    id: str
-    is_browser_extension: bool
-    is_desktop_app: bool
-    last_seen: str
-    os: str
-    value: str
-    version: str
-
-
-class UserAgentsViewModel(BaseModel):
-    """Model for user agents view."""
-
-    data: list[UserAgentEntry]
-    total_pages: int
-
-
 class UserViewModel(BaseModel):
     """Model for user view."""
 
@@ -763,53 +742,6 @@ class WakapiClient:
         json_data = response.json()
         return ProjectViewModel.model_validate(json_data)
 
-    async def get_user_agents(self, user: str = "current") -> UserAgentsViewModel:
-        """
-        List of unique user agents for given user.
-
-        operationId: get-wakatime-useragents
-        summary: List of unique user agents for given user.
-        description: Mimics https://wakatime.com/developers#user_agents
-        tags: [wakatime]
-        parameters:
-          - name: user
-            in: path
-            description: User ID to fetch data for (or 'current')
-            required: true
-            schema:
-              type: string
-        responses:
-          200:
-            description: OK
-            schema: v1.UserAgentsViewModel
-
-        Requires ApiKeyAuth: Set header `Authorization` to your API Key
-        encoded as Base64 and prefixed with `Basic`.
-        """
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/user_agents"
-
-        logger = logging.getLogger(__name__)
-        logger.debug("Calling real Wakapi API for get_user_agents")
-        try:
-            response = await self.client.get(url, headers=self._get_headers())
-            response.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            raise ApiError(
-                f"Wakapi API error in get_user_agents: {e.response.status_code} - "
-                f"{e.response.text}",
-                details={
-                    "status_code": e.response.status_code,
-                    "method": "get_user_agents",
-                },
-            ) from e
-
-        json_data = response.json()
-        if "error" in json_data:
-            raise ValueError(json_data["error"])
-
-        logger = logging.getLogger(__name__)
-        logger.debug(f"User agents API response: {json_data}")
-        return UserAgentsViewModel.model_validate(json_data)
 
     async def get_summaries(
         self,

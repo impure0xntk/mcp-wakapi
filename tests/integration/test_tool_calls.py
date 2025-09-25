@@ -14,15 +14,6 @@ async def test_get_leaders(mcp_server):
 
 
 @pytest.mark.asyncio
-async def test_get_user_agents(mcp_server):
-    """Test get_user_agents tool call handles API error."""
-    session, uri, _ = mcp_server
-    async with Client(uri) as client:
-        with pytest.raises(ToolError, match="Failed to fetch user agents"):
-            await client.call_tool("get_user_agents", {"user": "current"})
-
-
-@pytest.mark.asyncio
 async def test_get_project_detail(mcp_server):
     """Test get_project_detail tool call handles API error."""
     session, uri, _ = mcp_server

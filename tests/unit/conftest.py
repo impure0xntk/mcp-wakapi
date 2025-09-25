@@ -26,8 +26,6 @@ from wakapi_sdk.client import (
     AllTimeData,
     AllTimeRange,
     ProjectViewModel,
-    UserAgentsViewModel,
-    UserAgentEntry,
     HeartbeatEntry,
     HeartbeatsResult,
 )
@@ -296,35 +294,6 @@ def mock_wakapi_client():
         )
     )
 
-    # Mock user agents
-    mock_user_agents = UserAgentsViewModel(
-        data=[
-            UserAgentEntry(
-                editor="VSCode",
-                first_seen="2023-01-01",
-                id="1",
-                is_browser_extension=False,
-                is_desktop_app=True,
-                last_seen="2023-01-01",
-                os="Linux",
-                value="VSCode",
-                version="1.85.0",
-            ),
-            UserAgentEntry(
-                editor="Chrome",
-                first_seen="2023-01-01",
-                id="2",
-                is_browser_extension=True,
-                is_desktop_app=False,
-                last_seen="2023-01-01",
-                os="Linux",
-                value="Chrome",
-                version="120.0.0",
-            ),
-        ],
-        total_pages=1,
-    )
-
     # Mock summaries
     mock_summaries = [
         WakapiSummary(date=date(2024, 1, 1), total_time=3600, total_count=100)
@@ -337,7 +306,6 @@ def mock_wakapi_client():
     mock_client.get_leaders = AsyncMock(return_value=mock_leaders)
     mock_client.get_all_time_since_today = AsyncMock(return_value=mock_all_time)
     mock_client.get_project_detail = AsyncMock(return_value=mock_project_detail)
-    mock_client.get_user_agents = AsyncMock(return_value=mock_user_agents)
     mock_client.get_summaries = AsyncMock(return_value=mock_summaries)
     mock_client.post_heartbeat = AsyncMock(
         return_value=HeartbeatEntry(

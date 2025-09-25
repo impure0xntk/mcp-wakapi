@@ -142,9 +142,6 @@ def initialize_tools():
         from src.mcp_tools.project_detail import get_project_detail
 
         _ = get_project_detail  # Trigger registration
-        from src.mcp_tools.user_agents import get_user_agents
-
-        _ = get_user_agents  # Trigger registration
         from src.mcp_tools.recent_logs import get_recent_logs
 
         _ = get_recent_logs  # Trigger registration

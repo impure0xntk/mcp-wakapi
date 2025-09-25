@@ -55,7 +55,7 @@ async def test_tools_list():
     from mcp_server import app
 
     tools = await app.get_tools()
-    assert len(tools) == 9
+    assert len(tools) == 8
     names = [tool.name for tool in tools.values()]
     expected_names = [
         "get_stats",
@@ -66,6 +66,5 @@ async def test_tools_list():
         "get_user",
         "get_all_time_since_today",
         "get_project_detail",
-        "get_user_agents",
     ]
     assert set(expected_names) == set(names)
