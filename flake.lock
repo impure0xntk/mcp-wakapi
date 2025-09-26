@@ -37,7 +37,8 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "wakapi-sdk": "wakapi-sdk"
       }
     },
     "systems": {
@@ -53,6 +54,26 @@
         "owner": "nix-systems",
         "repo": "default",
         "type": "github"
+      }
+    },
+    "wakapi-sdk": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1,
+        "narHash": "sha256-dcL3hcIMdvv4FIP2Z1nTGQSwIrGMJyqrApj6P0RS0ZQ=",
+        "path": "/nix/store/1pdlcqfwavs1k2iswgzh3rvdlg64h968-source/wakapi_sdk_project",
+        "type": "path"
+      },
+      "original": {
+        "path": "/nix/store/1pdlcqfwavs1k2iswgzh3rvdlg64h968-source/wakapi_sdk_project",
+        "type": "path"
       }
     }
   },
