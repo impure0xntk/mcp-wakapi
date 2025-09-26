@@ -14,6 +14,9 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
 
+[project.scripts]
+wakapi-mcp = "main:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
@@ -47,7 +50,7 @@ target-version = "py311"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mcp_tools", "src/wakapi_sdk"]
+packages = ["src/mcp_tools", "wakapi_sdk_project/src/wakapi_sdk"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
