@@ -6,7 +6,6 @@ import toml
 from pathlib import Path
 from typing import Optional, Any
 from dataclasses import dataclass
-from dotenv import load_dotenv
 
 from .exceptions import ConfigurationError
 
@@ -80,8 +79,7 @@ class ConfigManager:
             elif config_path.suffix.lower() == ".toml":
                 return toml.load(config_path)
             else:
-                # Treat as .env file
-                load_dotenv(config_path)
+                # Unsupported file format
                 return {}
         except (json.JSONDecodeError, toml.TomlDecodeError) as e:
             raise ConfigurationError(f"Invalid configuration file format: {e}") from e
