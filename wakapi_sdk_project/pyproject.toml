@@ -1,14 +1,15 @@
 [project]
-name = "mcp-wakapi"
+name = "wakapi_sdk"
 version = "0.1.0"
-description = "MCP server for collecting logs from Wakapi"
+description = "SDK for interacting with Wakapi API"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
 ]
 dependencies = [
-    "fastmcp>=0.1.0",
-    "toml>=0.10.0",
-    "wakapi_sdk @ {root:uri}/wakapi_sdk_project",
+    "httpx>=0.25.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "structlog",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -43,11 +44,8 @@ target-version = ['py311']
 line-length = 88
 target-version = "py311"
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.hatch.build.targets.wheel]
-packages = ["src/mcp_tools", "src/wakapi_sdk"]
+packages = ["src/wakapi_sdk"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

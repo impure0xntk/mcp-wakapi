@@ -47,11 +47,11 @@ class TestRecentLogs:
 
         with (
             patch(
-                "src.mcp_tools.dependency_injection.get_wakapi_client",
+                "mcp_tools.dependency_injection.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
             patch(
-                "src.mcp_tools.recent_logs.get_wakapi_client",
+                "mcp_tools.recent_logs.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
         ):
@@ -101,11 +101,11 @@ class TestRecentLogs:
 
         with (
             patch(
-                "src.mcp_tools.dependency_injection.get_wakapi_client",
+                "mcp_tools.dependency_injection.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
             patch(
-                "src.mcp_tools.recent_logs.get_wakapi_client",
+                "mcp_tools.recent_logs.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
         ):
@@ -130,11 +130,11 @@ class TestRecentLogs:
         """Empty list when days=0"""
         with (
             patch(
-                "src.mcp_tools.dependency_injection.get_wakapi_client",
+                "mcp_tools.dependency_injection.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
             patch(
-                "src.mcp_tools.recent_logs.get_wakapi_client",
+                "mcp_tools.recent_logs.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
         ):
@@ -152,11 +152,11 @@ class TestRecentLogs:
         """Empty list when limit=0"""
         with (
             patch(
-                "src.mcp_tools.dependency_injection.get_wakapi_client",
+                "mcp_tools.dependency_injection.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
             patch(
-                "src.mcp_tools.recent_logs.get_wakapi_client",
+                "mcp_tools.recent_logs.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
         ):
@@ -174,11 +174,11 @@ class TestRecentLogs:
         """Timeout"""
         with (
             patch(
-                "src.mcp_tools.dependency_injection.get_wakapi_client",
+                "mcp_tools.dependency_injection.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
             patch(
-                "src.mcp_tools.recent_logs.get_wakapi_client",
+                "mcp_tools.recent_logs.get_wakapi_client",
                 return_value=mock_wakapi_client,
             ),
         ):

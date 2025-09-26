@@ -124,28 +124,28 @@ def initialize_tools():
     """Initialize and register all Wakapi tools."""
     try:
         # Direct imports to avoid circular import in __init__.py
-        from src.mcp_tools.stats import get_stats
+        from mcp_tools.stats import get_stats
 
         _ = get_stats  # Trigger registration
-        from src.mcp_tools.projects import get_projects
+        from mcp_tools.projects import get_projects
 
         _ = get_projects  # Trigger registration
-        from src.mcp_tools.leaders import get_leaders
+        from mcp_tools.leaders import get_leaders
 
         _ = get_leaders  # Trigger registration
-        from src.mcp_tools.users import get_user
+        from mcp_tools.users import get_user
 
         _ = get_user  # Trigger registration
-        from src.mcp_tools.all_time import get_all_time_since_today
+        from mcp_tools.all_time import get_all_time_since_today
 
         _ = get_all_time_since_today  # Trigger registration
-        from src.mcp_tools.project_detail import get_project_detail
+        from mcp_tools.project_detail import get_project_detail
 
         _ = get_project_detail  # Trigger registration
-        from src.mcp_tools.recent_logs import get_recent_logs
+        from mcp_tools.recent_logs import get_recent_logs
 
         _ = get_recent_logs  # Trigger registration
-        from src.mcp_tools.connection import test_connection
+        from mcp_tools.connection import test_connection
 
         _ = test_connection  # Trigger registration
         print("All Wakapi tools registered successfully.", file=sys.stderr)

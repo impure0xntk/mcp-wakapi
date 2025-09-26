@@ -39,7 +39,7 @@ class TestConfig:
         register_config_manager(mock_manager)
         create_server(mock_manager)
 
-        with patch("src.mcp_server._config_manager", mock_manager):
+        with patch("mcp_server._config_manager", mock_manager):
             config = get_config()
             assert config.wakapi_url == "http://localhost:3000"
             assert config.api_key == "test_api_key"
