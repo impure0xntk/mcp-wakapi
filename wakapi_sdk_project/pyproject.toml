@@ -3,7 +3,7 @@ name = "wakapi_sdk"
 version = "0.1.0"
 description = "SDK for interacting with Wakapi API"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "impure0xntk", email = "219413815+impure0xntk@users.noreply.github.com"},
 ]
 dependencies = [
     "httpx>=0.25.0",
@@ -12,7 +12,7 @@ dependencies = [
 ]
 requires-python = ">=3.11"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 
 [project.optional-dependencies]
 dev = [

@@ -33,3 +33,8 @@ To run tests:
 
 ```bash
 pytest
+```
+
+## License
+
+Apache License 2.0

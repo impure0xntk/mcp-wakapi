@@ -216,7 +216,7 @@ pytest tests/test_mcp_server.py -v
 
 ## License
 
-MIT License
+Apache License 2.0
 
 ## Contributing
 
