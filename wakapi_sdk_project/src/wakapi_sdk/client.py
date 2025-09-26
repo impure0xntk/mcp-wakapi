@@ -308,6 +308,7 @@ class WakapiConfig:
 
     base_url: str
     api_key: str
+    api_path: str = "/compat/wakatime/v1"
 
     def __post_init__(self):
         """Post init to ensure base_url ends with slash."""
@@ -322,6 +323,7 @@ class WakapiClient:
         """Initialize Wakapi client with config."""
         self.config = config
         self.base_url = f"{config.base_url.rstrip('/')}/api"
+        self.api_path = config.api_path
         self.client = httpx.AsyncClient(timeout=0.1)
 
     async def __aenter__(self):
@@ -392,7 +394,7 @@ class WakapiClient:
             params["project"] = project
         if limit:
             params["limit"] = limit
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/heartbeats"
+        url = f"{self.base_url}{self.api_path}/users/{user}/heartbeats"
 
         response = await self.client.get(
             url, params=params, headers=self._get_headers()
@@ -494,7 +496,7 @@ class WakapiClient:
         if label:
             params["label"] = label
 
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/stats/{range}"
+        url = f"{self.base_url}{self.api_path}/users/{user}/stats/{range}"
 
         try:
             response = await self.client.get(
@@ -548,7 +550,7 @@ class WakapiClient:
         if q:
             params["q"] = q
 
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/projects"
+        url = f"{self.base_url}{self.api_path}/users/{user}/projects"
 
         logger = logging.getLogger(__name__)
         logger.debug("Calling real Wakapi API for get_projects")
@@ -586,7 +588,7 @@ class WakapiClient:
         Requires ApiKeyAuth: Set header `Authorization` to your API Key
         encoded as Base64 and prefixed with `Basic`.
         """
-        url = f"{self.base_url}/compat/wakatime/v1/leaders"
+        url = f"{self.base_url}{self.api_path}/leaders"
 
         logger = logging.getLogger(__name__)
         logger.debug("Calling real Wakapi API for get_leaders")
@@ -629,7 +631,7 @@ class WakapiClient:
         Requires ApiKeyAuth: Set header `Authorization` to your API Key
         encoded as Base64 and prefixed with `Basic`.
         """
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}"
+        url = f"{self.base_url}{self.api_path}/users/{user}"
 
         logger = logging.getLogger(__name__)
         logger.debug("Calling real Wakapi API for get_user")
@@ -669,7 +671,7 @@ class WakapiClient:
         Requires ApiKeyAuth: Set header `Authorization` to your API Key
         encoded as Base64 and prefixed with `Basic`.
         """
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/all_time_since_today"
+        url = f"{self.base_url}{self.api_path}/users/{user}/all_time_since_today"
 
         logger = logging.getLogger(__name__)
         logger.debug("Calling real Wakapi API for get_all_time_since_today")
@@ -722,7 +724,7 @@ class WakapiClient:
         """
         if not id:
             raise ValueError("Project ID is required")
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/projects/{id}"
+        url = f"{self.base_url}{self.api_path}/users/{user}/projects/{id}"
 
         logger = logging.getLogger(__name__)
         logger.debug("Calling real Wakapi API for get_project_detail")
@@ -849,7 +851,7 @@ class WakapiClient:
         if label:
             params["label"] = label
 
-        url = f"{self.base_url}/compat/wakatime/v1/users/{user}/summaries"
+        url = f"{self.base_url}{self.api_path}/users/{user}/summaries"
 
         logger = logging.getLogger(__name__)
         logger.debug("Calling real Wakapi API for get_summaries")

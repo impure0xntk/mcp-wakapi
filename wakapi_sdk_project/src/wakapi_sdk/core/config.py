@@ -16,6 +16,7 @@ class WakapiConfig:
 
     url: str
     api_key: str
+    api_path: str = "/compat/wakatime/v1"
     timeout: int = 30
     retry_count: int = 3
 
@@ -88,7 +89,7 @@ class ConfigManager:
 
         config_data = {}
         # Map environment variables to configuration data
-        for key in ["WAKAPI_URL", "WAKAPI_API_KEY", "DEBUG"]:
+        for key in ["WAKAPI_URL", "WAKAPI_API_KEY", "WAKAPI_API_PATH", "DEBUG"]:
             value = os.getenv(key)
             if value is not None:
                 config_data[key] = value
@@ -110,6 +111,10 @@ class ConfigManager:
             flat_config.get("WAKAPI_API_KEY")
             or flat_config.get("WAKAPI_AUTH_API_KEY")
             or os.getenv("WAKAPI_API_KEY", "")
+        )
+        api_path = (
+            flat_config.get("WAKAPI_API_PATH")
+            or os.getenv("WAKAPI_API_PATH", "/compat/wakatime/v1")
         )
 
         # Validate required settings (with more detailed error messages)
@@ -142,12 +147,14 @@ class ConfigManager:
                 error_msg += "\n\nConfig method:\n- Create .env file:\n"
                 error_msg += "WAKAPI_URL=http://your-wakapi-server:3000\n"
                 error_msg += "WAKAPI_API_KEY=your-api-key\n"
+                error_msg += "WAKAPI_API_PATH=/compat/wakatime/v1\n"
                 error_msg += "\n- Copy .env.example"
             raise ConfigurationError(error_msg)
 
         self._wakapi_config = WakapiConfig(
             url=wakapi_url.strip(),
             api_key=api_key.strip(),
+            api_path=api_path.strip(),
             timeout=int(
                 flat_config.get(
                     "WAKAPI_TIMEOUT", flat_config.get("WAKAPI_CONNECTION_TIMEOUT", 30)
@@ -182,6 +189,7 @@ class ConfigManager:
 
         # Log successful configuration loading
         print(f"INFO: Configuration loaded successfully - URL: {wakapi_url}")
+        print(f"INFO: API Path: {api_path}")
 
     def get_wakapi_config(self) -> WakapiConfig:
         """Get Wakapi configuration."""

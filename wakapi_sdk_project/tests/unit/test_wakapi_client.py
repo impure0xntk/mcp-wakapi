@@ -13,7 +13,7 @@ from wakapi_sdk.core.exceptions import ApiError
 @pytest.fixture
 def config():
     """Create a default WakapiConfig instance for testing."""
-    return WakapiConfig(base_url="http://localhost:3000/", api_key="test_api_key")
+    return WakapiConfig(base_url="http://localhost:3000/", api_key="test_api_key", api_path="/compat/wakatime/v1")
 
 
 @pytest.fixture

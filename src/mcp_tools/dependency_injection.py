@@ -35,7 +35,11 @@ class DependencyInjector:
         wakapi_config = self._config_manager.get_wakapi_config()
 
         return WakapiClient(
-            WakapiConfig(base_url=wakapi_config.url, api_key=wakapi_config.api_key)
+            WakapiConfig(
+                base_url=wakapi_config.url,
+                api_key=wakapi_config.api_key,
+                api_path=wakapi_config.api_path,
+            )
         )
 
     def get_config_manager(self) -> ConfigManager:

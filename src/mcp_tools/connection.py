@@ -16,6 +16,7 @@ async def test_connection() -> dict[str, Any]:
         - message (str): Description of the result.
         - projects_count (int, optional): Number of projects if successful.
         - server_url (str): The Wakapi server URL.
+        - api_path (str): The API path used for requests.
         - error (str, optional): Error message if failed.
     """
     logger = get_logger("connection_tool")
@@ -39,11 +40,13 @@ async def test_connection() -> dict[str, Any]:
             f"({client.config.base_url})",
             "projects_count": len(projects.data),
             "server_url": client.config.base_url,
+            "api_path": client.config.api_path,
         }
     except Exception as e:
         return {
             "status": "error",
             "message": f"Failed to connect to Wakapi server: {e!s}",
             "server_url": client.config.base_url,
+            "api_path": client.config.api_path,
             "error": str(e),
         }

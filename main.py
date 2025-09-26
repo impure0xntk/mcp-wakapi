@@ -62,6 +62,7 @@ Examples:
         wakapi_config = config_manager.get_wakapi_config()
         print(f"  - WAKAPI_URL: {wakapi_config.url}", file=sys.stderr)
         print("  - WAKAPI_USER_ID: current", file=sys.stderr)
+        print(f"  - WAKAPI_API_PATH: {wakapi_config.api_path}", file=sys.stderr)
         api_key_len = len(wakapi_config.api_key)
         if api_key_len > 8:
             masked_key = "*" * 8 + "..."
@@ -79,7 +80,9 @@ Examples:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
+        import traceback
         print(f"Unexpected error: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
         sys.exit(1)
 
     # Add src directory to Python path (for backward compatibility)

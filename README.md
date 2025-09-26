@@ -128,6 +128,7 @@ The most common way to configure the server is through environment variables:
 ```bash
 export WAKAPI_URL="http://your-wakapi-server:3000"
 export WAKAPI_API_KEY="your_actual_api_key_here"
+export WAKAPI_API_PATH="/compat/wakatime/v1"
 ```
 
 ### Configuration Files
@@ -140,6 +141,7 @@ You can also use configuration files in TOML or JSON format:
 [wakapi]
 url = "http://your-wakapi-server:3000"
 api_key = "your_actual_api_key_here"
+api_path = "/compat/wakatime/v1"
 timeout = 30
 retry_count = 3
 
@@ -159,6 +161,7 @@ format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   "wakapi": {
     "url": "http://your-wakapi-server:3000",
     "api_key": "your_actual_api_key_here",
+    "api_path": "/compat/wakatime/v1",
     "timeout": 30,
     "retry_count": 3
   },
@@ -182,6 +185,7 @@ format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 # Set environment variables
 export WAKAPI_URL="http://localhost:3000"
 export WAKAPI_API_KEY="your_actual_api_key_here"
+export WAKAPI_API_PATH="/compat/wakatime/v1"
 
 # Start the server in STDIO mode (default)
 python main.py --transport stdio

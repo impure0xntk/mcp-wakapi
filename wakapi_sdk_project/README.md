@@ -13,7 +13,7 @@ pip install wakapi_sdk
 ```python
 from wakapi_sdk import WakapiClient, WakapiConfig
 
-config = WakapiConfig(base_url="https://wakapi.example.com", api_key="your_api_key")
+config = WakapiConfig(base_url="https://wakapi.example.com", api_key="your_api_key", api_path="/compat/wakatime/v1")
 client = WakapiClient(config)
 
 # Get stats
