@@ -50,7 +50,7 @@ target-version = "py311"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["src/mcp_tools", "."]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
