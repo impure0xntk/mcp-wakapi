@@ -1,6 +1,7 @@
 # Wakapi SDK
 
 This is a Python SDK for interacting with the Wakapi API.
+This repository is unofficial. Use at your own risk.
 
 ## Installation
 

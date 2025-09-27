@@ -1,6 +1,7 @@
 # Wakapi MCP Server
 
 This is an MCP (Model Context Protocol) server. It provides development time tracking tools by collecting logs from Wakapi REST API.
+This repository is unofficial. Use at your own risk.
 
 ## Features
 
