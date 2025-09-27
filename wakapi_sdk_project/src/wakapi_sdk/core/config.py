@@ -144,11 +144,22 @@ class ConfigManager:
                 validation_errors
             )
             if missing_keys:
-                error_msg += "\n\nConfig method:\n- Create .env file:\n"
-                error_msg += "WAKAPI_URL=http://your-wakapi-server:3000\n"
-                error_msg += "WAKAPI_API_KEY=your-api-key\n"
-                error_msg += "WAKAPI_API_PATH=/compat/wakatime/v1\n"
-                error_msg += "\n- Copy .env.example"
+                error_msg += r"""
+
+Config methods:
+
+- Set environment variables:
+WAKAPI_URL=http://your-wakapi-server:3000
+WAKAPI_API_KEY=your-api-key
+
+- Or, set config.json or toml and set file path to --config option.
+```toml
+[wakapi]
+url = "http://localhost:3000"
+api_key = "your-api-key"
+```
+
+"""
             raise ConfigurationError(error_msg)
 
         self._wakapi_config = WakapiConfig(
