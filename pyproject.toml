@@ -50,7 +50,7 @@ target-version = "py311"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mcp_tools", "wakapi_sdk_project/src/wakapi_sdk"]
+packages = ["."]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
