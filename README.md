@@ -1,6 +1,7 @@
 # Wakapi MCP Server
 
 This is an MCP (Model Context Protocol) server. It provides development time tracking tools by collecting logs from Wakapi REST API.
+
 This repository is unofficial. Use at your own risk.
 
 ## Quick Start
@@ -9,16 +10,6 @@ This repository is unofficial. Use at your own risk.
 
 - Python 3.11 or higher
 - Wakapi server with API access
-
-### Configuration
-
-The most common way to configure the server is through environment variables:
-
-```bash
-export WAKAPI_URL="http://your-wakapi-server:3000"
-export WAKAPI_API_KEY="your_actual_api_key_here"
-export WAKAPI_API_PATH="/compat/wakatime/v1"
-```
 
 ### MCP Server Configuration Examples
 
@@ -95,6 +86,29 @@ Please see [the Configuration](#configuration-details) section.
 
 ## Configuration Details
 
+### Environment Variables Configuration
+
+The most common way to configure the server is through environment variables:
+
+```bash
+export WAKAPI_URL="http://your-wakapi-server:3000"
+export WAKAPI_API_KEY="your_actual_api_key_here"
+export WAKAPI_API_PATH="/compat/wakatime/v1"
+```
+
+Or pass to `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "wakapi": {
+      "env": {
+        "WAKAPI_URL": "http://localhost:3000",
+        "WAKAPI_API_KEY": "your-api-key"
+      },
+      ...
+```
+
 ### Configuration Files
 
 You can also use configuration files in TOML or JSON format:
@@ -144,8 +158,6 @@ format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 ### Setup Development Environment
 
-#### Using Nix Environment (Recommended)
-
 This project provides a reproducible development environment using Nix flakes:
 
 ```bash
@@ -156,14 +168,7 @@ nix develop
 nix-shell
 ```
 
-#### Manual Installation
-
-1. Clone this repository
-2. Install dependencies using uv:
-
-   ```bash
-   uv sync
-   ```
+And also use `uv` to activate, sync and run.
 
 ### Starting the MCP Server from python command
 
