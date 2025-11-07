@@ -4,6 +4,10 @@ This is an MCP (Model Context Protocol) server. It provides development time tra
 
 This repository is unofficial. Use at your own risk.
 
+<a href="https://glama.ai/mcp/servers/@impure0xntk/mcp-wakapi">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@impure0xntk/mcp-wakapi/badge" alt="Wakapi Server MCP server" />
+</a>
+
 ## Quick Start
 
 ### Prerequisites
