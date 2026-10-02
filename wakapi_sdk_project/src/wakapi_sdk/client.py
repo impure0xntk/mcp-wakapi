@@ -319,12 +319,12 @@ class WakapiConfig:
 class WakapiClient:
     """Wakapi API client."""
 
-    def __init__(self, config: WakapiConfig) -> None:
+    def __init__(self, config: WakapiConfig, timeout: float = 30.0) -> None:
         """Initialize Wakapi client with config."""
         self.config = config
         self.base_url = f"{config.base_url.rstrip('/')}/api"
         self.api_path = config.api_path
-        self.client = httpx.AsyncClient(timeout=0.1)
+        self.client = httpx.AsyncClient(timeout=timeout)
 
     async def __aenter__(self):
         """Enter async context."""

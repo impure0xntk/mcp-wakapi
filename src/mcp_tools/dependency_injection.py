@@ -39,7 +39,8 @@ class DependencyInjector:
                 base_url=wakapi_config.url,
                 api_key=wakapi_config.api_key,
                 api_path=wakapi_config.api_path,
-            )
+            ),
+            timeout=float(wakapi_config.timeout),
         )
 
     def get_config_manager(self) -> ConfigManager:
