@@ -1,13 +1,20 @@
 """Configuration management class for Wakapi MCP server."""
 
-import os
+import configparser
 import json
+import logging
+import os
+import re
+import shlex
+import subprocess
 import toml
 from pathlib import Path
 from typing import Optional, Any
 from dataclasses import dataclass
 
 from .exceptions import ConfigurationError
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -49,16 +56,31 @@ class ConfigManager:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, config_path: Optional[Path] = None):
+    def __init__(
+        self,
+        config_path: Optional[Path] = None,
+        wakatime_config_path: Optional[Path] = None,
+    ):
         """Initialize the config manager."""
         if self._initialized:
             return
         self.config_path = config_path
+        self.wakatime_config_path = wakatime_config_path
         self._wakapi_config: Optional[WakapiConfig] = None
         self._server_config: Optional[ServerConfig] = None
         self._logging_config: Optional[LoggingConfig] = None
         self._load_config()
         self._initialized = True
+
+    @classmethod
+    def _reset_instance(cls) -> None:
+        """Clear the cached singleton so the next construction re-reads config.
+
+        Tests need this because the singleton would otherwise keep serving the
+        config parsed for whichever temporary file was created first.
+        """
+        cls._instance = None
+        cls._initialized = False
 
     def _load_config(self):
         """Load configuration."""
@@ -68,8 +90,13 @@ class ConfigManager:
         if self.config_path and self.config_path.exists():
             config_data = self._load_from_file(self.config_path)
 
+        # WakaTime-compatible config is the lowest-precedence source
+        wakatime_data: dict[str, Any] = {}
+        if self.wakatime_config_path and self.wakatime_config_path.exists():
+            wakatime_data = self._load_from_wakatime_config(self.wakatime_config_path)
+
         # Configuration validation and application
-        self._validate_and_apply_config(config_data)
+        self._validate_and_apply_config(config_data, wakatime_data)
 
     def _load_from_file(self, config_path: Path) -> dict[str, Any]:
         """Load configuration from file."""
@@ -96,25 +123,104 @@ class ConfigManager:
 
         return config_data
 
-    def _validate_and_apply_config(self, config_data: dict[str, Any]):
+    def _load_from_wakatime_config(self, wakatime_config_path: Path) -> dict[str, Any]:
+        """Read WakaTime-compatible ``~/.wakatime.cfg`` into env-style keys.
+
+        The result is kept separate from the config file and applied as defaults
+        so the priority order cannot depend on dictionary insertion order.
+        """
+        parser = configparser.ConfigParser()
+        try:
+            if not parser.read(wakatime_config_path):
+                return {}
+            settings = parser["settings"] if parser.has_section("settings") else {}
+        except configparser.Error as e:
+            raise ConfigurationError(
+                f"Failed to load WakaTime config file: {e}"
+            ) from e
+
+        data: dict[str, Any] = {}
+        if settings.get("api_url"):
+            data["WAKAPI_URL"] = self._strip_api_suffix(settings["api_url"])
+
+        api_key = self._resolve_wakatime_api_key(settings)
+        if api_key:
+            data["WAKAPI_API_KEY"] = api_key
+
+        return data
+
+    @staticmethod
+    def _strip_api_suffix(api_url: str) -> str:
+        """Drop a trailing ``/api`` so the base server URL is kept.
+
+        WakaTime configs point at a full API endpoint; this SDK appends the
+        compatibility path itself.
+        """
+        return re.sub(r"/api/?$", "", api_url.strip().rstrip("/"))
+
+    def _resolve_wakatime_api_key(self, settings: Any) -> str:
+        """Resolve the API key, preferring the vault command when present."""
+        vault_cmd = settings.get("api_key_vault_cmd")
+        if vault_cmd:
+            try:
+                key = self._run_vault_command(vault_cmd)
+            except (OSError, subprocess.SubprocessError):
+                key = ""
+            if key:
+                return key
+        return settings.get("api_key", "").strip()
+
+    @staticmethod
+    def _run_vault_command(vault_cmd: str) -> str:
+        """Execute the configured vault command and return the key it prints."""
+        result = subprocess.run(
+            shlex.split(vault_cmd),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return result.stdout.strip()
+
+    def _check_duplicate_config(self, config_data: dict[str, Any]) -> None:
+        """Warn when several sources set the same key.
+
+        Duplicates are no longer an error: WakaTime configs commonly sit next to
+        a dedicated config file, and the precedence rules resolve them cleanly.
+        """
+        keys = {"WAKAPI_URL", "WAKAPI_API_KEY"}
+        present = sorted(k for k in keys if config_data.get(k))
+        if len(present) > 1 and os.getenv("WAKAPI_DEBUG"):
+            logger.debug("Config keys set more than once, precedence applied: %s", present)
+
+    def _validate_and_apply_config(
+        self,
+        config_data: dict[str, Any],
+        wakatime_data: Optional[dict[str, Any]] = None,
+    ):
         """Validate and apply configuration."""
-        # Flatten nested structure from TOML file
-        flat_config = self._flatten_config(config_data)
+        # WakaTime defaults are applied first so the config file always wins,
+        # independent of the order the keys happened to be inserted.
+        flat_config = {**(wakatime_data or {}), **self._flatten_config(config_data)}
+        self._check_duplicate_config(flat_config)
 
         # Wakapi configuration (standard TOML key mapping)
+        # Environment variables win so deployments can override a baked-in file.
         wakapi_url = (
-            flat_config.get("WAKAPI_URL")
+            os.getenv("WAKAPI_URL")
+            or flat_config.get("WAKAPI_URL")
             or flat_config.get("WAKAPI_CONNECTION_URL")
-            or os.getenv("WAKAPI_URL", "http://localhost:3000")
+            or "http://localhost:3000"
         )
         api_key = (
-            flat_config.get("WAKAPI_API_KEY")
+            os.getenv("WAKAPI_API_KEY")
+            or flat_config.get("WAKAPI_API_KEY")
             or flat_config.get("WAKAPI_AUTH_API_KEY")
-            or os.getenv("WAKAPI_API_KEY", "")
+            or ""
         )
         api_path = (
-            flat_config.get("WAKAPI_API_PATH")
-            or os.getenv("WAKAPI_API_PATH", "/compat/wakatime/v1")
+            os.getenv("WAKAPI_API_PATH")
+            or flat_config.get("WAKAPI_API_PATH")
+            or "/compat/wakatime/v1"
         )
 
         # Validate required settings (with more detailed error messages)

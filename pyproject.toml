@@ -20,6 +20,15 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 
+[tool.uv.sources]
+# Editable so edits under wakapi_sdk_project/src take effect on the next run
+# without re-syncing. A non-editable path dependency installs a snapshot, which
+# silently hides local SDK changes behind stale behaviour.
+wakapi-sdk = { path = "wakapi_sdk_project", editable = true }
+
+[tool.uv]
+package = true
+
 [project.scripts]
 wakapi-mcp = "main:main"
 
