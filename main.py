@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
-"""MCP server for collecting logs from Wakapi."""
+"""MCP server for collecting logs from Wakapi.
+
+Serves MCP 2026-07-28 (protocol revision "v2"). `--transport stdio` keeps the
+original JSON-RPC-over-stdout path; `--transport http` exposes the Streamable
+HTTP endpoint at `/mcp`. The SSE transport was removed in this revision, so
+there is no `--transport sse`.
+"""
 
 import argparse
 import sys
 from pathlib import Path
 
 import uvicorn
-from fastmcp.server.http import create_sse_app
-
 from wakapi_sdk.core.config import ConfigManager
 from wakapi_sdk.core.exceptions import ConfigurationError
+
+STREAMABLE_HTTP_PATH = "/mcp"
 
 
 def main():
     """Run the main application."""
-    # Parse command line arguments
     parser = argparse.ArgumentParser(
         description="MCP server for collecting logs from Wakapi",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -22,7 +27,7 @@ def main():
 Examples:
   %(prog)s --config /path/to/config.toml
   %(prog)s --transport stdio  # STDIO transport (default)
-  %(prog)s --transport sse    # SSE transport (port from config)
+  %(prog)s --transport http   # Streamable HTTP transport (port from config)
         """,
     )
 
@@ -38,8 +43,14 @@ Examples:
         "--transport",
         type=str,
         default="stdio",
-        choices=["stdio", "sse"],
-        help="Transport method: stdio (default) or sse (HTTP)",
+        choices=["stdio", "http"],
+        help="Transport method: stdio (default) or http (Streamable HTTP)",
+    )
+
+    parser.add_argument(
+        "--stateless-http",
+        action="store_true",
+        help="Use a fresh transport per request instead of keeping sessions (http only)",
     )
 
     args = parser.parse_args()
@@ -81,6 +92,7 @@ Examples:
         sys.exit(1)
     except Exception as e:
         import traceback
+
         print(f"Unexpected error: {e}", file=sys.stderr)
         traceback.print_exc(file=sys.stderr)
         sys.exit(1)
@@ -90,30 +102,37 @@ Examples:
 
     # Import MCP server and start based on transport
     try:
-        from mcp_server import create_server
+        from mcp_server import WakapiMCPServer
 
-        app = create_server(config_manager)
+        server = WakapiMCPServer(config_manager)
 
         # Initialize tools
         initialize_tools()
 
-        if args.transport == "sse":
+        if args.transport == "http":
             server_config = config_manager.get_server_config()
             print(
-                f"Starting Wakapi MCP Server on http://{server_config.host}:{server_config.port}",
+                f"Starting Wakapi MCP Server on "
+                f"http://{server_config.host}:{server_config.port}{STREAMABLE_HTTP_PATH}",
                 file=sys.stderr,
             )
 
-            sse_app = create_sse_app(app, message_path="/message", sse_path="/sse")
+            # MCP 2026-07-28 dropped the standalone SSE endpoint; a single
+            # Streamable HTTP endpoint now carries initialize, tools/list and
+            # tools/call, including server-initiated SSE streams on one route.
+            app = server.http_app(
+                path=STREAMABLE_HTTP_PATH,
+                stateless_http=args.stateless_http,
+            )
             uvicorn.run(
-                sse_app,
+                app,
                 host=server_config.host,
                 port=server_config.port,
                 log_level="info",
             )
         else:
             print("Starting Wakapi MCP Server in STDIO mode", file=sys.stderr)
-            app.run(transport="stdio")
+            server.app.run(transport="stdio")
     except ImportError as e:
         print(f"Error: Failed to import MCP server: {e}", file=sys.stderr)
         print("Please ensure the server modules are available", file=sys.stderr)

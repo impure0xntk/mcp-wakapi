@@ -1,11 +1,33 @@
+"""Wakapi MCP server.
+
+MCP 2026-07-28 (protocol revision "v2") server surface. The FastMCP 4 line is
+the only one that speaks that revision, so the SSE-era ``create_sse_app`` wiring
+is gone: HTTP clients connect to the Streamable HTTP endpoint at ``/mcp``.
+"""
+
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.server.http import create_sse_app
+from fastmcp.server.http import create_streamable_http_app
 
+SERVER_NAME = "Wakapi MCP Server"
+SERVER_VERSION = "0.2.0"
+SERVER_INSTRUCTIONS = (
+    "Retrieve Wakapi development-time data. Use `get_recent_logs` for raw "
+    "heartbeats and the `get_*` summary tools for aggregates. Every tool takes "
+    "an optional `user` argument; pass it only when querying another account."
+)
 
-app = FastMCP("Wakapi MCP Server")
+app = FastMCP(
+    SERVER_NAME,
+    instructions=SERVER_INSTRUCTIONS,
+    version=SERVER_VERSION,
+    website_url="https://github.com/impure0xntk/mcp-wakapi",
+    # Errors are surfaced as opaque "Error calling tool" text; the exception
+    # detail would otherwise leak Wakapi response bodies (and the API key path).
+    mask_error_details=True,
+)
 
 
 # Global configuration manager
@@ -21,32 +43,18 @@ class WakapiMCPServer:
         if config_manager:
             _config_manager = config_manager
         self.app = app
-        # FastMCP has no 'tools' attribute; use get_tools() if needed
 
-        self._initialize_tool_system()
+    def http_app(self, path: str = "/mcp", stateless_http: bool = False):
+        """Return the Streamable HTTP ASGI app (MCP 2026-07-28; no SSE app).
 
-        # Update global settings (new FastMCP API)
-        message_path = "/messages/"
-        sse_path = "/sse"
-
-        self.sse_app = create_sse_app(
-            self.app, message_path=message_path, sse_path=sse_path
+        ``create_sse_app`` was removed for this revision, so a single
+        Streamable HTTP endpoint serves initialize, tools/list and tools/call.
+        """
+        return create_streamable_http_app(
+            app,
+            streamable_http_path=path,
+            stateless_http=stateless_http,
         )
-
-    def _initialize_tool_system(self) -> None:
-        """Initialize new tool system."""
-        # Already registered in main.py, so do nothing
-
-    def call_tool(self, tool_name: str, **kwargs):
-        """Call a tool by name."""
-        # Function-based tools, so call directly
-        tool_func = globals().get(tool_name)
-        if tool_func:
-            return tool_func(**kwargs)
-
-        # Fallback if tool not found in globals
-        tool = getattr(self.app, tool_name)
-        return tool(**kwargs)
 
 
 @dataclass
@@ -58,7 +66,7 @@ class Config:
     user_id: str
 
 
-def get_config(config: Optional[dict[str, Any]] = None) -> Config:
+def get_config(config: dict[str, Any] | None = None) -> Config:
     """
     Load configuration from config manager.
 

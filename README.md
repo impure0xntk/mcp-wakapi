@@ -174,6 +174,10 @@ nix-shell
 
 And also use `uv` to activate, sync and run.
 
+`nix build` for the packaged server does not currently succeed: MCP `2026-07-28`
+needs `fastmcp` 4.x on the `mcp` 2.x SDK, and no available nixpkgs carries it.
+Use `uv sync` until nixpkgs ships `fastmcp` 4.
+
 ### Starting the MCP Server from python command
 
 ```bash
@@ -185,8 +189,8 @@ export WAKAPI_API_PATH="/compat/wakatime/v1"
 # Start the server in STDIO mode (default)
 python main.py --transport stdio
 
-# Start the server in SSE (HTTP) mode
-python main.py --transport sse --port 8001
+# Start the server in Streamable HTTP mode
+python main.py --transport http
 
 # Start with a configuration file
 python main.py --config /path/to/config.toml
@@ -195,7 +199,18 @@ python main.py --config /path/to/config.toml
 **Authentication Method**: The API key is automatically base64-encoded and sent as a Bearer token.
 
 - `--transport stdio`: Uses STDIO transport (default). Can be used directly with MCP clients like opencode
-- `--transport sse --port 8001`: Uses SSE (HTTP) transport. Accessible via browser or HTTP
+- `--transport http`: Uses Streamable HTTP transport. The endpoint is `http://<host>:<port>/mcp`, with host and port taken from the `[server]` section of the config file
+
+### Streamable HTTP
+
+MCP revision `2026-07-28` replaced the standalone SSE endpoint with a single Streamable HTTP endpoint. One route at `/mcp` carries `initialize`, `tools/list` and `tools/call`, including server-initiated SSE streams, so `--transport sse` no longer exists.
+
+Add `--stateless-http` to run without server-side session state, which suits
+serverless or horizontally scaled deployments that cannot keep sessions warm:
+
+```bash
+python main.py --transport http --stateless-http
+```
 
 ### Testing
 

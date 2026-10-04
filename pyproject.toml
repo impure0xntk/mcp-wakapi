@@ -1,13 +1,19 @@
 [project]
 name = "mcp-wakapi"
-version = "0.1.0"
+version = "0.2.0"
 description = "MCP server for collecting logs from Wakapi"
 authors = [
     {name = "impure0xntk", email = "219413815+impure0xntk@users.noreply.github.com"},
 ]
 dependencies = [
-    "fastmcp>=0.1.0",
+    # MCP 2026-07-28 (v2) is implemented by the fastmcp 4.x line on top of the
+    # mcp 2.x SDK. The fastmcp 2.x line only speaks the pre-2026 protocol.
+    "fastmcp>=4.0.10,<5",
+    "mcp>=2.3.0,<3",
     "toml>=0.10.0",
+    # Serves the Streamable HTTP app in `--transport http`. The mcp SDK requires
+    # uvicorn too, but depending on that transitively is not a stable contract.
+    "uvicorn>=0.31.1",
     "wakapi_sdk @ {root:uri}/wakapi_sdk_project",
 ]
 requires-python = ">=3.11"
@@ -21,6 +27,7 @@ wakapi-mcp = "main:main"
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-timeout>=2.3.0",
     "black>=23.0.0",
     "ruff>=0.1.0",
 ]
@@ -29,13 +36,14 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.23.0",
+    "pytest-timeout>=2.3.0",
+    "pytest-mock>=3.15.1",
     "black>=23.0.0",
     "ruff>=0.1.0",
-    "pytest-mock>=3.15.1",
 ]
 
 [tool.black]

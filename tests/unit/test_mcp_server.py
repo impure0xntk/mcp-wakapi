@@ -1,15 +1,17 @@
 import os
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent / ".." / "src"))
 
-from mcp_server import get_config, create_server
 from wakapi_sdk.core.config import ConfigManager
-from mcp_tools.dependency_injection import register_config_manager, get_injector
+
+from mcp_server import create_server, get_config
+from mcp_tools.dependency_injection import get_injector, register_config_manager
 
 
 class TestConfig:
@@ -54,9 +56,11 @@ class TestConfig:
 async def test_tools_list():
     from mcp_server import app
 
-    tools = await app.get_tools()
+    # FastMCP 4 exposes `list_tools()` as a coroutine returning a sequence of
+    # Tool objects; the pre-4.0 `get_tools()` dict accessor is gone.
+    tools = await app.list_tools()
     assert len(tools) == 8
-    names = [tool.name for tool in tools.values()]
+    names = [tool.name for tool in tools]
     expected_names = [
         "get_stats",
         "get_projects",
@@ -68,3 +72,53 @@ async def test_tools_list():
         "get_project_detail",
     ]
     assert set(expected_names) == set(names)
+
+
+@pytest.mark.asyncio
+async def test_server_advertises_2026_07_28_metadata():
+    """Server metadata required by the MCP 2026-07-28 initialize result."""
+    from mcp_server import SERVER_VERSION, app
+
+    assert app.name == "Wakapi MCP Server"
+    assert app.version == SERVER_VERSION
+    assert app.instructions
+
+
+@pytest.mark.asyncio
+async def test_get_tool_resolves_registered_tool():
+    """FastMCP 4 `get_tool()` is a coroutine returning a Tool or None."""
+    from mcp_server import app
+
+    assert (await app.get_tool("get_stats")) is not None
+    assert await app.get_tool("no_such_tool") is None
+
+
+@pytest.mark.asyncio
+async def test_tool_schemas_avoid_invalid_x_mcp_header():
+    """No tool may annotate a nullable property with `x-mcp-header`.
+
+    A 2026-07-28 client drops any tool whose schema carries an invalid
+    `x-mcp-header`, and `Optional[str]` renders as `anyOf[string, null]`,
+    which the spec forbids. Annotating one makes the tool disappear.
+    """
+    from mcp.shared.inbound import find_invalid_x_mcp_header
+
+    from mcp_server import app
+
+    for tool in await app.list_tools():
+        # `parameters` is FastMCP's field name; the MCP wire name is
+        # `input_schema` (renamed by SDK v2).
+        reason = find_invalid_x_mcp_header(tool.parameters)
+        assert reason is None, f"{tool.name}: {reason}"
+
+
+@pytest.mark.asyncio
+async def test_http_app_exposes_streamable_http_only():
+    """The 2026-07-28 revision serves one Streamable HTTP route, not SSE."""
+    from mcp_server import WakapiMCPServer
+
+    server = WakapiMCPServer()
+    asgi_app = server.http_app(path="/mcp")
+    paths = {getattr(route, "path", None) for route in getattr(asgi_app, "routes", [])}
+    assert "/mcp" in paths
+    assert "/sse" not in paths
