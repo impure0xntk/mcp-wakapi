@@ -67,12 +67,12 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-zuUWWtju4sa/3QXVEIx+V97FP00ePpes33xyYHiuvCM=",
-        "path": "/nix/store/774kgmyjzznnzpbahmllf1yacdzw3wbp-source/wakapi_sdk_project",
+        "narHash": "sha256-2oFaG86aM34CosfGYamp4Sb2xDGel1DJXncFXxFhrLQ=",
+        "path": "/nix/store/1y3zigh4hzcppwjljswc4vw1bvxf9hky-source/wakapi_sdk_project",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/774kgmyjzznnzpbahmllf1yacdzw3wbp-source/wakapi_sdk_project",
+        "path": "/nix/store/1y3zigh4hzcppwjljswc4vw1bvxf9hky-source/wakapi_sdk_project",
         "type": "path"
       }
     }
