@@ -15,11 +15,18 @@ async def test_invalid_params(mcp_server, live_wakapi):
 
 @pytest.mark.asyncio
 async def test_missing_required_param(mcp_server):
-    """A schema violation is rejected by the server without reaching Wakapi."""
+    """A schema violation is rejected by the server without reaching Wakapi.
+
+    `get_stats` requires both `user` and `range`, so an empty argument object is
+    refused by argument validation itself. `get_projects` cannot stand in here:
+    every one of its parameters is optional, so an empty call is well-formed and
+    only fails later on the Wakapi request, which would make this assertion
+    depend on the configured upstream instead of on schema enforcement.
+    """
     uri, _, _ = mcp_server
     async with Client(uri) as client:
         with pytest.raises(ToolError):
-            await client.call_tool("get_projects", {})
+            await client.call_tool("get_stats", {})
 
 
 @pytest.mark.asyncio
