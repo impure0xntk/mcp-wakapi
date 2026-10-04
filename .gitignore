@@ -177,3 +177,6 @@ pyrightconfig.json
 
 # For nix
 .direnv
+# Local test config may carry real credentials; never commit it.
+tests/integration/test_config.local.toml
+*.local.toml
